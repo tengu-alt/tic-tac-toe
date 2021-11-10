@@ -23,3 +23,8 @@ function generateRows(rowsCount, colsCount) {
 }
 
 generateRows(ROWS_COUNT, COLS_COUNT);
+
+const generateField = function() {
+  generateRows(ROWS_COUNT, COLS_COUNT);
+};
+export default generateField;

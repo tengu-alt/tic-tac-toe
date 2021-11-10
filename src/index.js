@@ -1,21 +1,26 @@
+import generateField from './generateField';
+
 const redo = document.querySelector('.redo-btn');
 const undo = document.querySelector('.undo-btn');
 let arrayOfKinds = [];
 
 const rows = document.querySelector('.field').querySelectorAll('.row');
 let redoArray = [];
-let a = 0;
+let full = 0;
 let queue = 1;
 if (localStorage.getItem('queue')) {
   queue = Number(localStorage.getItem('queue'));
 }
 if (localStorage.getItem('full')) {
-  a = Number(localStorage.getItem('full'));
+  full = Number(localStorage.getItem('full'));
 }
-if (a < 0) {
-  a = 0;
+if (full < 0) {
+  full = 0;
 }
 function loadField() {
+  if (localStorage.getItem('queue')) {
+    queue = Number(localStorage.getItem('queue'));
+  }
   if (!localStorage.getItem('undo')) {
     redo.disabled = true;
   } else if (localStorage.getItem('undo')) {
@@ -62,15 +67,15 @@ function endGame() {
     won.classList.add('hidden');
     queue = 1;
     localStorage.setItem('queue', queue);
-
-    a = 0;
+    full = 0;
     localStorage.clear();
     arrayOfKinds = [];
   });
   redo.disabled = true;
   undo.disabled = true;
 }
-function checkWin() {
+
+function checkWinHorisontal() {
   for (let i = 0; i < rows.length; i += 1) {
     for (let j = 0; j < rows[i].querySelectorAll('.cell').length; j += 1) {
       const cellj = rows[i].querySelectorAll('.cell');
@@ -83,6 +88,12 @@ function checkWin() {
           endGame();
         }
       }
+    }
+  }
+}
+function checkWinVertical() {
+  for (let i = 0; i < rows.length; i += 1) {
+    for (let j = 0; j < rows[i].querySelectorAll('.cell').length; j += 1) {
       if (
         rows[0].querySelectorAll('.cell')[j].classList[1] &&
         rows[1].querySelectorAll('.cell')[j].classList[1] &&
@@ -99,6 +110,12 @@ function checkWin() {
           endGame();
         }
       }
+    }
+  }
+}
+function checkWinDiagonalRight() {
+  for (let i = 0; i < rows.length; i += 1) {
+    for (let j = 0; j < rows[i].querySelectorAll('.cell').length; j += 1) {
       if (
         rows[0].querySelectorAll('.cell')[0].classList[1] &&
         rows[1].querySelectorAll('.cell')[1].classList[1] &&
@@ -115,6 +132,12 @@ function checkWin() {
           endGame();
         }
       }
+    }
+  }
+}
+function checkWinDiagonalLeft() {
+  for (let i = 0; i < rows.length; i += 1) {
+    for (let j = 0; j < rows[i].querySelectorAll('.cell').length; j += 1) {
       if (
         rows[0].querySelectorAll('.cell')[2].classList[1] &&
         rows[1].querySelectorAll('.cell')[1].classList[1] &&
@@ -131,6 +154,17 @@ function checkWin() {
           endGame();
         }
       }
+    }
+  }
+}
+
+function checkWin() {
+  for (let i = 0; i < rows.length; i += 1) {
+    for (let j = 0; j < rows[i].querySelectorAll('.cell').length; j += 1) {
+      checkWinHorisontal();
+      checkWinVertical();
+      checkWinDiagonalLeft();
+      checkWinDiagonalRight();
     }
   }
 }
@@ -156,21 +190,23 @@ function playing() {
           arrayOfKinds.push(rows[i].querySelectorAll('.cell')[j].id, kind);
           localStorage.setItem('kinds', arrayOfKinds);
 
-          a += 1;
-          localStorage.setItem('full', a);
+          full += 1;
+          localStorage.setItem('full', full);
 
           checkWin();
 
-          if (a > 8) {
+          if (full > 8) {
             checkWin();
             if (!document.querySelector('.won-message').innerHTML) {
               someWin();
             }
             endGame();
-            a = 0;
+            full = 0;
           }
         }
       });
+      window.addEventListener('storage', loadField);
+      window.addEventListener('storage', checkWin);
     }
   }
 }
@@ -181,6 +217,7 @@ function game() {
   playing();
 }
 function undoClick() {
+  window.addEventListener('storage', loadField);
   redo.disabled = false;
   arrayOfKinds = localStorage.getItem('kinds').split(',');
   if (localStorage.getItem('undo')) {
@@ -192,14 +229,15 @@ function undoClick() {
   redoArray.reverse();
   localStorage.setItem('undo', redoArray);
   localStorage.setItem('kinds', arrayOfKinds);
-  a = Number(localStorage.getItem('full'));
-  a -= 1;
+  full = Number(localStorage.getItem('full'));
+  full -= 1;
   queue *= -1;
   localStorage.setItem('queue', queue);
-  localStorage.setItem('full', a);
+  localStorage.setItem('full', full);
   window.location.reload();
 }
 function redoClick() {
+  window.addEventListener('storage', loadField);
   const redoForClick = localStorage.getItem('undo').split(',');
   redoArray.push(redoForClick.shift());
   redoArray.push(redoForClick.shift());
@@ -209,11 +247,11 @@ function redoClick() {
   arrayOfKinds.push(redoArray.pop());
   arrayOfKinds.push(redoArray.pop());
   localStorage.setItem('kinds', arrayOfKinds);
-  a = Number(localStorage.getItem('full'));
-  a += 1;
+  full = Number(localStorage.getItem('full'));
+  full += 1;
   queue *= -1;
   localStorage.setItem('queue', queue);
-  localStorage.setItem('full', a);
+  localStorage.setItem('full', full);
   window.location.reload();
 }
 window.addEventListener('load', game);

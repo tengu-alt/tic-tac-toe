@@ -1,6 +1,8 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+let sourceDir = path.resolve(__dirname, 'src');
+let buildDir = path.resolve(__dirname, 'dist');
 module.exports = {
   mode: 'development',
   devtool: 'inline-source-map',
@@ -34,5 +36,13 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './src/index.html',
     }),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: path.resolve(sourceDir, 'style.css'),
+          to: path.resolve(buildDir, 'style.css')
+        },
+      ]
+    })
   ],
 };
