@@ -5,7 +5,9 @@ import arraySet from './arraySet';
 function view() {
   const redo = document.querySelector('.redo-btn');
   const undo = document.querySelector('.undo-btn');
-
+  if (localStorage.getItem('undo')) {
+    redo.disabled = false;
+  }
   if (localStorage.getItem('full')) {
     const full = Number(localStorage.getItem('full'));
     if (full === 0) {
@@ -105,11 +107,12 @@ function getKinds(e) {
 function controller() {
   const redo = document.querySelector('.redo-btn');
   const undo = document.querySelector('.undo-btn');
+  if (localStorage.getItem('kinds')) {
+    undo.disabled = false;
+  }
   undo.addEventListener('click', undoClick);
   redo.addEventListener('click', redoClick);
   const field = document.querySelector('.field');
-  undo.disabled = false;
-  redo.disabled = false;
   if (localStorage.getItem('full')) {
     const full = Number(localStorage.getItem('full'));
     if (full === 0 || !localStorage.getItem('kinds')) {
